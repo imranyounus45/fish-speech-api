@@ -2,7 +2,7 @@ FROM python:3.10-bullseye
 
 WORKDIR /app
 
-# Install all system packages required for fish-speech and pyaudio
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     ffmpeg \
@@ -17,14 +17,20 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy local files
-COPY . .
+# Clone fish-speech repo
+RUN git clone https://github.com/fishaudio/fish-speech.git /app/fish-speech
 
-# Install Python dependencies
+# Copy your FastAPI app
+COPY ./app ./app
+COPY ./models ./models
+COPY requirements.txt .
+
+WORKDIR /app/fish-speech
+
+# Install everything
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 EXPOSE 7860
 
-# Run the FastAPI app
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
