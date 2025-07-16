@@ -1,26 +1,20 @@
-# Use official lightweight Python image
+# Based on official fish-speech repo dockerfile
 FROM python:3.10-slim
 
-# Set working directory
-WORKDIR /app
+WORKDIR /fish-speech
 
-# Install required system packages
-RUN apt-get update && apt-get install -y git ffmpeg
+# Install dependencies
+RUN apt-get update && apt-get install -y ffmpeg git && rm -rf /var/lib/apt/lists/*
 
-# Install FastAPI server dependencies
-RUN pip install uvicorn fastapi
+# Clone official repo
+RUN git clone --depth 1 https://github.com/fishaudio/fish-speech.git .
 
-# Clone fish-speech repo
-RUN git clone https://github.com/fishaudio/fish-speech.git
-
-# Set working directory to actual API folder
-WORKDIR /app/fish-speech/server
-
-# Install Python requirements from correct path
+# Install Python requirements
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Expose the port used by Uvicorn
-EXPOSE 8080
+# Expose default port (choose, e.g., 5000)
+EXPOSE 8000
 
-# Run the fish-speech API
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run their API entrypoint
+CMD ["python", "tools/start_api.py", "--host", "0.0.0.0", "--port", "5000"]
