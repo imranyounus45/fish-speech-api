@@ -1,10 +1,17 @@
-import os
+import subprocess
 import uuid
-from fish_speech import FishTTS
-
-tts_model = FishTTS()  # Load once
+import os
 
 def generate_tts(text, lang="de"):
     output_file = f"/tmp/{uuid.uuid4()}.wav"
-    tts_model.tts_to_file(text=text, file_path=output_file, lang=lang)
+
+    # Call fish-speech CLI tool to generate speech
+    cmd = [
+        "python",
+        "tools/tts_to_file.py",
+        "--text", text,
+        "--output_path", output_file,
+        "--lang", lang
+    ]
+    subprocess.run(cmd, check=True)
     return output_file
